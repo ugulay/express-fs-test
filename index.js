@@ -13,15 +13,19 @@ app.use(bodyParser({ extended: true }));
 
 // Token Control
 app.use(async (req, res, next) => {
-    const headers = req.headers;
-    const token = (headers && headers.authorization) ? headers.authorization : null;
-    if (!token.includes('Bearer ')) return res.status(401).send('Unauthorized');
-    const tokenValue = token.split('Bearer ')[1];
-    if (tokenValue !== requestToken) {
-        res.status(401).send('Unauthorized');
-        return;
+    try {
+        const headers = req.headers;
+        const authHeader = (headers && headers.authorization) ? headers.authorization : "";
+        if (!authHeader.includes('Bearer ')) return res.status(401).send('Unauthorized');
+        const tokenValue = authHeader.split('Bearer ')[1];
+        if (tokenValue !== requestToken) {
+            res.status(401).send('Unauthorized');
+            return;
+        }
+        next();
+    } catch (err) {
+        return res.status(401).send('Unauthorized');
     }
-    next();
 });
 
 // Dosya Oku
